@@ -1,9 +1,10 @@
 "use client";
 
 import { PaperAirplaneIcon } from "@heroicons/react/24/outline";
-import { serverTimestamp } from "firebase/firestore";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { useSession } from "next-auth/react";
 import { FormEvent, useState } from "react";
+import { db } from "../../firebase";
 
 type Props = {
   chatId: string;
@@ -13,23 +14,56 @@ function ChatInput({ chatId }: Props) {
   const [prompt, setPrompt] = useState("");
   const { data: session } = useSession();
 
-  const sendMessage = async(e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    if(!prompt) return ;
+  // useSWR to get model
+  const model = "text-davinci-003";
 
-    const input = prompt.trim()
-    setPrompt('')
+  const sendMessage = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!prompt) return;
 
-    const message:Message = {
-        text: input,
-        createdAt: serverTimestamp(),
-        user: {
-            _id: session?.user?.email!,
-            name: session?.user?.name!,
-            avatar: session?.user?.image! ||  `https://ui-avatars.com/api/?name=${session?.user?.name}`,
-        }
-    }
-  }
+    const input = prompt.trim();
+    setPrompt("");
+
+    const message: Message = {
+      text: input,
+      createdAt: serverTimestamp(),
+      user: {
+        _id: session?.user?.email!,
+        name: session?.user?.name!,
+        avatar:
+          session?.user?.image! ||
+          `https://ui-avatars.com/api/?name=${session?.user?.name}`,
+      },
+    };
+
+    await addDoc(
+      collection(
+        db,
+        "users",
+        session?.user?.email!,
+        "chats",
+        chatId,
+        "messages"
+      ),
+      message
+    );
+
+    //Toast notification to say Loading!
+    await fetch(`api/askQuestion`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        prompt: input,
+        chatId,
+        model,
+        session,
+      }),
+    }).then(() => {
+      //Toast notification to say successfull
+    });
+  };
 
   return (
     <div className="bg-gray-700/50 text-gray-400 rounded-lg text-sm">
