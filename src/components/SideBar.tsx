@@ -11,13 +11,12 @@ import ModelSelection from "./ModelSelection";
 function SideBar() {
   const { data: session } = useSession();
 
-  const [chats, loading, error] = useCollection(
+  const [chats, loading] = useCollection(
     session && query(collection(db, 'users', session.user?.email!, 'chats'), orderBy('createdAt', 'asc'))
   )
 
   return (
     <div className="p-2 flex flex-col h-screen">
-      SideBar goes here
       <div className="flex-1">
         <div>
           {/* New Chat */}
