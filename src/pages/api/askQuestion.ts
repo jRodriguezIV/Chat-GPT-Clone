@@ -1,4 +1,4 @@
-// Next.js API route support: https://nextjs.org/docs/api-routes/introduction
+
 import { adminDb } from "../../../firebaseAdmin";
 import admin from "firebase-admin";
 import query from "../../../lib/queryApi";
