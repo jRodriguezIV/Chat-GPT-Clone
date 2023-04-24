@@ -6,6 +6,7 @@ import NewChat from "./NewChat";
 import { collection, orderBy, query } from "firebase/firestore";
 import { db } from "../../firebase";
 import ChatRow from "./ChatRow";
+import ModelSelection from "./ModelSelection";
 
 function SideBar() {
   const { data: session } = useSession();
@@ -21,6 +22,11 @@ function SideBar() {
         <div>
           {/* New Chat */}
           <NewChat />
+
+          <div className="hidden sm:inline">
+          <ModelSelection />
+
+          </div>
 
          
 
